@@ -1,6 +1,12 @@
 extends KinematicBody2D
 
+const ACCELERATION = 10
+const FRICTION = 10
+const MAX_SPEED = 100
+
+
 var velocity = Vector2.ZERO
+
 
 func _physics_process(delta):
 	
@@ -10,9 +16,10 @@ func _physics_process(delta):
 	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 		
 	if (input_vector != Vector2.ZERO):
-		velocity = input_vector
+		velocity += input_vector * ACCELERATION
+		velocity = velocity.clamped(MAX_SPEED)
 	else:
-		velocity = Vector2.ZERO
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION)
 		
 		
-	move_and_collide(velocity.normalized())
+	move_and_collide(velocity * delta)
