@@ -8,18 +8,23 @@ const MAX_SPEED = 100
 var velocity = Vector2.ZERO
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	
-	var input_vector = Vector2.ZERO
+	var inputVector = Vector2.ZERO
 	
-	input_vector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
-	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+	inputVector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	inputVector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+	inputVector = inputVector.normalized()
 		
-	if (input_vector != Vector2.ZERO):
-		velocity += input_vector * ACCELERATION
-		velocity = velocity.clamped(MAX_SPEED)
+	# This if/else handles setting our player move speed. 
+	# If a direction is being pressed we will move our player toward it.
+	# Else we will start to reduce our player speed towards zero.
+	if (inputVector != Vector2.ZERO):
+		velocity = velocity.move_toward(inputVector * MAX_SPEED, ACCELERATION)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION)
 		
-		
-	move_and_collide(velocity * delta)
+	# Use the velocity = ... part in order to make it
+	# so that the player character doesn't wiggle when
+	# walking into a corner.
+	velocity = move_and_slide(velocity)
