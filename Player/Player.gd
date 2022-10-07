@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
-const ACCELERATION = 10
-const FRICTION = 10
+const ACCELERATION = 500
+const FRICTION = ACCELERATION * 10
 const MAX_SPEED = 100
 
 enum State {
@@ -35,8 +35,7 @@ func _physics_process(delta):
 			pass
 		State.ATTACK:
 			attack_state()
-	
-	
+
 
 func move_state(delta):
 	var input_vector = Vector2.ZERO
@@ -56,10 +55,10 @@ func move_state(delta):
 		animation_tree.set("parameters/Run/blend_position", input_vector)
 		animation_tree.set("parameters/Attack/blend_position", input_vector)
 		animation_state.travel("Run")
-		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION)
+		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION * delta)
 	else:
 		animation_state.travel("Idle")
-		velocity = velocity.move_toward(Vector2.ZERO, FRICTION)
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 		
 	# Use the velocity = ... part in order to make it
 	# so that the player character doesn't wiggle when
