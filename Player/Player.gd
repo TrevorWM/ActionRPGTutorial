@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 const ACCELERATION = 500
-const FRICTION = ACCELERATION * 10
+const FRICTION = 500
 const MAX_SPEED = 100
 
 enum State {
@@ -19,6 +19,7 @@ var roll_vector = Vector2.DOWN
 # setting the variable.
 onready var animation_player = $AnimationPlayer
 onready var animation_tree = $AnimationTree
+onready var sword_hitbox = $HitboxPivot/SwordHitbox
 
 # This variable gets the actual Tree itself so that we can move between our
 # different blendspace2Ds using .travel()
@@ -26,6 +27,7 @@ onready var animation_state = animation_tree.get("parameters/playback")
 
 func _ready():
 	animation_tree.active = true
+	sword_hitbox.knockback_vector = roll_vector
 
 func _physics_process(delta):
 	
@@ -52,6 +54,7 @@ func move_state(delta):
 	if (input_vector != Vector2.ZERO):
 		
 		roll_vector = input_vector
+		sword_hitbox.knockback_vector = input_vector
 		
 		# Set the blend position once we have an input vector from the player
 		# so that we don't set the position to 0 as that can cause issues.
