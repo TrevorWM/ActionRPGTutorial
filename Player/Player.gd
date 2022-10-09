@@ -78,7 +78,7 @@ func move_state(delta):
 	
 	if Input.is_action_just_pressed("Roll"):
 		current_state = State.ROLL
-		
+		hurtbox.start_invincibility(0.5)
 	
 	if Input.is_action_just_pressed("Attack"):
 		current_state = State.ATTACK
