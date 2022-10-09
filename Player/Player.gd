@@ -13,6 +13,7 @@ enum State {
 var current_state = State.MOVE
 var velocity = Vector2.ZERO
 var roll_vector = Vector2.DOWN
+var stats = PlayerStats
 
 # Gets the variable from a child node in the scene when the Player node
 # is ready. This makes sure that the AnimationPlayer will be loaded before
@@ -20,12 +21,14 @@ var roll_vector = Vector2.DOWN
 onready var animation_player = $AnimationPlayer
 onready var animation_tree = $AnimationTree
 onready var sword_hitbox = $HitboxPivot/SwordHitbox
+onready var hurtbox = $Hurtbox
 
 # This variable gets the actual Tree itself so that we can move between our
 # different blendspace2Ds using .travel()
 onready var animation_state = animation_tree.get("parameters/playback")
 
 func _ready():
+	stats.connect("no_health", self, "queue_free")
 	animation_tree.active = true
 	sword_hitbox.knockback_vector = roll_vector
 
@@ -75,8 +78,9 @@ func move_state(delta):
 	
 	if Input.is_action_just_pressed("Roll"):
 		current_state = State.ROLL
+		
 	
-	if Input.is_action_just_pressed("attack"):
+	if Input.is_action_just_pressed("Attack"):
 		current_state = State.ATTACK
 		velocity = Vector2.ZERO
 	
@@ -94,7 +98,13 @@ func roll_state():
 	move()
 	animation_state.travel("Roll")
 	
+	
 func roll_animation_finished():
 	current_state = State.MOVE
 	# Prevents microstutter of player movement at the end of a roll
 	velocity = velocity * 0.70
+
+func _on_Hurtbox_area_entered(_area):
+	hurtbox.start_invincibility(0.5)
+	hurtbox.create_hit_effect()
+	stats.health -= 1
