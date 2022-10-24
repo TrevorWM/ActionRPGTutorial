@@ -105,6 +105,7 @@ func roll_animation_finished():
 	velocity = velocity * 0.70
 
 func _on_Hurtbox_area_entered(_area):
-	hurtbox.start_invincibility(0.5)
-	hurtbox.create_hit_effect()
-	stats.health -= 1
+	if hurtbox.invincible == false:
+		hurtbox.start_invincibility(0.5)
+		hurtbox.create_hit_effect()
+		stats.health -= 1
