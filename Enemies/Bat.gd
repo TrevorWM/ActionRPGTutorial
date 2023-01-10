@@ -5,6 +5,7 @@ const EnemyDeathEffect = preload("res://Effects/EnemyDeathEffect.tscn")
 export(int) var ACCELERATION = 300
 export(int) var MAX_SPEED = 50
 export(int) var FRICTION = 200
+export(int) var WANDER_TOLERANCE = 50
 
 enum State {
 	IDLE,
@@ -16,12 +17,16 @@ var velocity = Vector2.ZERO
 var knockback = Vector2.ZERO
 var ai_state = State.CHASE
 
+
 onready var sprite = $AnimatedSprite
 onready var stats = $Stats
 onready var player_detection_zone = $PlayerDetectionZone
 onready var hurtbox = $Hurtbox
 onready var soft_collision = $SoftCollision
+onready var wander_controller = $WanderController
 
+func _ready():
+	ai_state = randi()%State.size()
 
 func _physics_process(delta):
 	knockback = knockback.move_toward(Vector2.ZERO, FRICTION * delta)
@@ -31,23 +36,38 @@ func _physics_process(delta):
 		State.IDLE:
 			velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 			seek_player()
-			
+			update_wander()
+		
 		State.WANDER:
-			pass
+			seek_player()
+			update_wander()
+				
+			accelerate_towards_point(wander_controller.target_position, delta)
+				
+			if global_position.distance_to(wander_controller.target_position) <= WANDER_TOLERANCE:
+				update_wander()
+				
 		State.CHASE:
 			var player = player_detection_zone.player
 			if player != null:
-				var direction_vector = (player.global_position - global_position).normalized()
-				velocity = velocity.move_toward(direction_vector * MAX_SPEED, ACCELERATION * delta)
+				accelerate_towards_point(player.global_position, delta)
 			else:
 				ai_state = State.IDLE
-			sprite.flip_h = velocity.x < 0
 				
-	
 	if soft_collision.is_colliding():
-		velocity += soft_collision.get_push_vector() * delta * 400
+		velocity += soft_collision.get_push_vector() * 400
 		
 	velocity = move_and_slide(velocity)
+
+func accelerate_towards_point(point, delta):
+	var direction_vector = global_position.direction_to(point)
+	velocity = velocity.move_toward(direction_vector * MAX_SPEED, ACCELERATION * delta)
+	sprite.flip_h = velocity.x < 0
+
+func update_wander():
+	if wander_controller.get_time_left() == 0:
+		ai_state = randi()%State.size()
+		wander_controller.start_wander_timer(rand_range(1,3))
 
 func seek_player():
 	if player_detection_zone.can_see_player():
