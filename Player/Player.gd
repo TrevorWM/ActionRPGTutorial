@@ -1,5 +1,7 @@
 extends KinematicBody2D
 
+const PlayerHurtSound = preload("res://Player/PlayerHurtSound.tscn")
+
 export(int) var ACCELERATION = 500
 export(int) var FRICTION = 500
 export(int) var MAX_SPEED = 100
@@ -22,6 +24,7 @@ onready var animation_player = $AnimationPlayer
 onready var animation_tree = $AnimationTree
 onready var sword_hitbox = $HitboxPivot/SwordHitbox
 onready var hurtbox = $Hurtbox
+onready var blink_animation_player = $BlinkAnimationPlayer
 
 # This variable gets the actual Tree itself so that we can move between our
 # different blendspace2Ds using .travel()
@@ -50,7 +53,6 @@ func move_state(delta):
 	input_vector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
 	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	input_vector = input_vector.normalized()
-	
 	
 	# This if/else handles setting our player move speed. 
 	# If a direction is being pressed we will move our player toward it.
@@ -105,8 +107,18 @@ func roll_animation_finished():
 	# Prevents microstutter of player movement at the end of a roll
 	velocity = velocity * 0.70
 
-func _on_Hurtbox_area_entered(_area):
+func _on_Hurtbox_area_entered(area):
 	if hurtbox.invincible == false:
-		hurtbox.start_invincibility(0.5)
+		hurtbox.start_invincibility(0.6)
 		hurtbox.create_hit_effect()
-		stats.health -= 1
+		var player_hurt_sound = PlayerHurtSound.instance()
+		get_tree().current_scene.add_child(player_hurt_sound)
+		stats.health -= area.damage
+
+
+func _on_Hurtbox_invincibility_started():
+	blink_animation_player.play("Start")
+
+
+func _on_Hurtbox_invincibility_ended():
+	blink_animation_player.play("Stop")

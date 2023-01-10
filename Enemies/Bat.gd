@@ -24,6 +24,7 @@ onready var player_detection_zone = $PlayerDetectionZone
 onready var hurtbox = $Hurtbox
 onready var soft_collision = $SoftCollision
 onready var wander_controller = $WanderController
+onready var animation_player = $AnimationPlayer
 
 func _ready():
 	ai_state = randi()%State.size()
@@ -76,6 +77,7 @@ func seek_player():
 func _on_Hurtbox_area_entered(area):
 	stats.health -= area.damage
 	hurtbox.create_hit_effect()
+	hurtbox.start_invincibility(0.4)
 	knockback = area.knockback_vector * 120
 
 # Example of call down signal up. Created a signal in the stats node to
@@ -86,3 +88,9 @@ func _on_Stats_no_health():
 	var enemy_death_effect = EnemyDeathEffect.instance()
 	get_parent().add_child(enemy_death_effect)
 	enemy_death_effect.global_position = global_position
+
+func _on_Hurtbox_invincibility_started():
+	animation_player.play("Start")
+
+func _on_Hurtbox_invincibility_ended():
+	animation_player.play("Stop")
