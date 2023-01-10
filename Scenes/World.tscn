@@ -509,10 +509,12 @@ __meta__ = {
 }
 
 [node name="Background" type="Sprite" parent="."]
+position = Vector2( -708, -541 )
+scale = Vector2( 1.76293, 1.76956 )
 texture = ExtResource( 4 )
 centered = false
 region_enabled = true
-region_rect = Rect2( 0, 0, 320, 180 )
+region_rect = Rect2( -273.564, -184.388, 928.142, 703.661 )
 
 [node name="DirtPathTileMap" type="TileMap" parent="."]
 tile_set = SubResource( 1 )
@@ -527,10 +529,18 @@ collision_mask = 0
 format = 1
 tile_data = PoolIntArray( -1, 0, 0, -65536, 0, 1, -65535, 0, 1, -65534, 0, 1, -65533, 0, 1, -65532, 0, 2, -65530, 0, 0, -65529, 0, 1, -65528, 0, 1, -65527, 0, 1, -65526, 0, 2, 65535, 0, 65536, 0, 0, 65541, 1, 0, 131073, 2, 0, 131073, 3, 0, 131073, 4, 0, 131074, 6, 0, 131072, 7, 0, 131073, 8, 0, 131073, 9, 0, 65542, 10, 0, 65538, 131071, 0, 131072, 65536, 0, 131074, 65545, 0, 131072, 65546, 0, 131074, 327679, 0, 0, 262144, 0, 2, 262153, 0, 3, 393215, 0, 65536, 327680, 0, 131077, 327681, 0, 1, 327682, 0, 2, 327688, 0, 196608, 327689, 0, 196615, 458751, 0, 131072, 393216, 0, 131073, 393217, 0, 131073, 393218, 0, 131074 )
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2( 112, 56 )
+current = true
+smoothing_enabled = true
+
 [node name="YSort" type="YSort" parent="."]
 
 [node name="Player" parent="YSort" instance=ExtResource( 2 )]
 position = Vector2( 112, 56 )
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="YSort/Player"]
+remote_path = NodePath("../../../Camera2D")
 
 [node name="Bushes" type="YSort" parent="YSort"]
 
@@ -598,4 +608,6 @@ position = Vector2( 97, 135 )
 [node name="Bat3" parent="YSort" instance=ExtResource( 7 )]
 position = Vector2( 207, 136 )
 
-[node name="HealthUI" parent="." instance=ExtResource( 8 )]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HealthUI" parent="CanvasLayer" instance=ExtResource( 8 )]
